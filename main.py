@@ -7,13 +7,14 @@ import numpy as np
 
 class GraphPlotter:
 
-    def __init__(self, paths, datas, ranges, lengths, show_trend = False):
+    def __init__(self, paths, datas, ranges, lengths, show_trend = False, skip = False):
 
         self.paths = paths
         self.datas = datas
         self.ranges = ranges
         self.lengths = lengths
         self.show_trend = show_trend
+        self.skip = skip
 
     def make_graph(self):
 
@@ -53,10 +54,10 @@ class GraphPlotter:
 
             plt.plot(deformation_corrected_list, stress_list, label=eval("path.split('/')[-1]"))
 
-            if self.show_trend:
+            if self.show_trend and not self.skip:
                 self.find_best_regression(start_x, end_x, deformation_corrected_list, stress_list, name)
-            else:
-                with open('results/DENSE CONTROL/' + name+'-regressions.csv', 'r') as f:
+            elif not self.show_trend and not self.skip:
+                with open('results/POROUS PCL 1/' + name+'-regressions.csv', 'r') as f:
                     csv_contracts = csv.DictReader(f, delimiter=',')
                     for row in csv_contracts:
                         if int(row['regression_length']) == self.lengths[it]:
@@ -71,11 +72,14 @@ class GraphPlotter:
                 plt.plot(x, y) 
             it += 1
         
-        with open('results/DENSE CONTROL/trends.txt', 'w+') as f:
+        with open('results/POROUS PCL 1/trends.txt', 'w+') as f:
             for i in trend_equations:
                 f.write(i+'\n')
-        plt.legend()
-        plt.title('DENSE CONTROL')
+        if self.skip or not self.show_trend:
+            plt.legend()
+        plt.title('POROUS PCL 1')
+        plt.xlabel('Deformation [mm/mm]')
+        plt.ylabel('Stress [MPa]')
         plt.show()
 
     def find_best_regression(self, start_x, end_x, x, y, name):
@@ -96,7 +100,7 @@ class GraphPlotter:
         
         best = sorted(best_regressions, key=lambda x: x[3])
 
-        with open('results/DENSE CONTROL/' + name+'-regressions.csv', 'w+') as f:
+        with open('results/POROUS PCL 1/' + name+'-regressions.csv', 'w+') as f:
             f.write('regression_length,a,b,error,start_x,end_x\n')
             for i in best:
                 f.write('{},{},{},{},{},{}\n'.format(i[0],i[1],i[2],i[3],i[4],i[5]))
@@ -181,10 +185,10 @@ def main():
                            '190327_CDHA_cylinders/DENSE CONTROL/Test8/Test8.Stop.csv',
                            '190327_CDHA_cylinders/DENSE CONTROL/Test9/Test9.Stop.csv']
     
-    lengths_dense_control = [150,
+    lengths_dense_control = [100,
                              150,
-                             200,
-                             250]
+                             250,
+                             200]
     ranges_dense_control = [(-0.363,-0.3559),
                             (-0.378,-0.371),
                             (-0.372,-0.359),
@@ -196,24 +200,146 @@ def main():
                         '190327_CDHA_cylinders/DENSE PCL 1/Test18/Test18.Stop.csv',
                         '190327_CDHA_cylinders/DENSE PCL 1/Test19/Test19.Stop.csv']
     
-    lines_dense_pcl1 = [(-0.106,-0.103),
-                        (-0.127,-0.122),
-                        (-0.040,-0.034),
-                        (-0.125,-0.119),
-                        (-0.133,-0.127)]
+    lengths_dense_pcl1 = [130,
+                          150,
+                          250,
+                          150,
+                          180]
+    ranges_dense_pcl1 = [(-0.108,-0.099),
+                        (-0.127,-0.101),
+                        (-0.043,-0.029),
+                        (-0.126,-0.118),
+                        (-0.135,-0.121)]
 
     items_dense_plu1 = ['190327_CDHA_cylinders/DENSE PLU 1/Test10/Test10.Stop.csv',
                         '190327_CDHA_cylinders/DENSE PLU 1/Test11/Test11.Stop.csv',
                         '190327_CDHA_cylinders/DENSE PLU 1/Test12/Test12.Stop.csv',
                         '190327_CDHA_cylinders/DENSE PLU 1/Test13/Test13.Stop.csv',
                         '190327_CDHA_cylinders/DENSE PLU 1/Test14/Test14.Stop.csv']
-    lines_dense_plu1 = [(-0.060,-0.056),
-                        (-0.036,-0.030),
-                        (-0.077,-0.069),
-                        (-0.009,-0.003),
-                        (0.043,0.048)]
+    lengths_dense_plu1 = [150,
+                          150,
+                          200,
+                          150,
+                          150]
+    ranges_dense_plu1 = [(-0.070,-0.043),
+                        (-0.039,-0.029),
+                        (-0.082,-0.069),
+                        (-0.020,-0.0001),
+                        (0.039,0.051)]
 
-    plotter = GraphPlotter(items_dense_control, datas, ranges_dense_control, lengths_dense_control, False)
+    items_porous_control = ['190327_CDHA_cylinders/POROUS CONTROL/Test1/Test1.Stop.csv',
+                            '190327_CDHA_cylinders/POROUS CONTROL/Test2/Test2.Stop.csv',
+                            '190327_CDHA_cylinders/POROUS CONTROL/Test3/Test3.Stop.csv',
+                            '190327_CDHA_cylinders/POROUS CONTROL/Test4/Test4.Stop.csv',
+                            '190327_CDHA_cylinders/POROUS CONTROL/Test5/Test5.Stop.csv']
+    lengths_porous_control = [160,
+                              150,
+                              150,
+                              180,
+                              150]
+    ranges_porous_control = [(0.0015,0.0118),
+                             (-0.2032,-0.1973),
+                             (-0.0673,-0.0605),
+                             (0.0887,0.104),
+                             (-0.0346,-0.0247)]
+    
+    items_porous_pcl1 = ['190327_CDHA_cylinders/POROUS PCL 1/Test45/Test45.Stop.csv',
+                         '190327_CDHA_cylinders/POROUS PCL 1/Test46/Test46.Stop.csv',
+                         '190327_CDHA_cylinders/POROUS PCL 1/Test47/Test47.Stop.csv',
+                         '190327_CDHA_cylinders/POROUS PCL 1/Test48/Test48.Stop.csv',
+                         '190327_CDHA_cylinders/POROUS PCL 1/Test49/Test49.Stop.csv']
+    lengths_porous_pcl1 = [140,
+                           140,
+                           200,
+                           190,
+                           160]
+    ranges_porous_pcl1 = [(0.0034,0.0115),
+                          (0.051,0.0587),
+                          (-0.0227,-0.0106),
+                          (0.0633,0.0720),
+                          (0.0466,0.0597)]
+
+    items_porous_pcl3 = ['190327_CDHA_cylinders/POROUS PCL 3/Test40/Test40.Stop.csv',
+                         '190327_CDHA_cylinders/POROUS PCL 3/Test41/Test41.Stop.csv',
+                         '190327_CDHA_cylinders/POROUS PCL 3/Test42/Test42.Stop.csv',
+                         '190327_CDHA_cylinders/POROUS PCL 3/Test43/Test43.Stop.csv',
+                         '190327_CDHA_cylinders/POROUS PCL 3/Test44/Test44.Stop.csv']
+    lengths_porous_pcl3 = [140,
+                           160,
+                           200,
+                           170,
+                           160]
+    ranges_porous_pcl3 = [(0.0656,0.0746),
+                          (0.0463,0.0607),
+                          (0.0022,0.0117),
+                          (-0.0559,-0.0478),
+                          (0.0977,0.1099)]
+    
+    items_porous_pcl5 = ['190327_CDHA_cylinders/POROUS PCL 5/Test35/Test35.Stop.csv',
+                         '190327_CDHA_cylinders/POROUS PCL 5/Test36/Test36.Stop.csv',
+                         '190327_CDHA_cylinders/POROUS PCL 5/Test37/Test37.Stop.csv',
+                         '190327_CDHA_cylinders/POROUS PCL 5/Test38/Test38.Stop.csv',
+                         '190327_CDHA_cylinders/POROUS PCL 5/Test39/Test39.Stop.csv']
+    lengths_porous_pcl5 = [140,
+                           200,
+                           180,
+                           170,
+                           160]
+    ranges_porous_pcl5 = [(-0.1352,-0.1212),
+                          (-0.0835,-0.0720),
+                          (-0.0956,-0.0846),
+                          (-0.0537,-0.0423),
+                          (-0.1254,-0.1154)]
+
+    items_porous_plu1 = ['190327_CDHA_cylinders/POROUS PLU 1/Test20/Test20.Stop.csv',
+                         '190327_CDHA_cylinders/POROUS PLU 1/Test21/Test21.Stop.csv',
+                         '190327_CDHA_cylinders/POROUS PLU 1/Test22/Test22.Stop.csv',
+                         '190327_CDHA_cylinders/POROUS PLU 1/Test23/Test23.Stop.csv',
+                         '190327_CDHA_cylinders/POROUS PLU 1/Test24/Test24.Stop.csv']
+    lengths_porous_plu1 = [140,
+                           200,
+                           180,
+                           170,
+                           160]
+    ranges_porous_plu1 = [(-0.1044,-0.0982),
+                          (-0.1389,-0.1311),
+                          (-0.1356,-0.1148),
+                          (-0.1765,-0.1677),
+                          (-0.1600,-0.1479)]
+    
+    items_porous_plu3 = ['190327_CDHA_cylinders/POROUS PLU 3/Test30/Test30.Stop.csv',
+                         '190327_CDHA_cylinders/POROUS PLU 3/Test31/Test31.Stop.csv',
+                         '190327_CDHA_cylinders/POROUS PLU 3/Test32/Test32.Stop.csv',
+                         '190327_CDHA_cylinders/POROUS PLU 3/Test33/Test33.Stop.csv',
+                         '190327_CDHA_cylinders/POROUS PLU 3/Test34/Test34.Stop.csv']
+    lengths_porous_plu3 = [140,
+                           200,
+                           180,
+                           170,
+                           160]
+    ranges_porous_plu3 = [(-0.1120,-0.1021),
+                          (-0.1946,-0.1855),
+                          (-0.1313,-0.1214),
+                          (-0.1619,-0.1508),
+                          (-0.1077,-0.1003)]
+
+    items_porous_plu5 = ['190327_CDHA_cylinders/POROUS PLU 5/Test25/Test25.Stop.csv',
+                         '190327_CDHA_cylinders/POROUS PLU 5/Test26/Test26.Stop.csv',
+                         '190327_CDHA_cylinders/POROUS PLU 5/Test27/Test27.Stop.csv',
+                         '190327_CDHA_cylinders/POROUS PLU 5/Test28/Test28.Stop.csv',
+                         '190327_CDHA_cylinders/POROUS PLU 5/Test29/Test29.Stop.csv']
+    lengths_porous_plu5 = [140,
+                           200,
+                           180,
+                           170,
+                           160]
+    ranges_porous_plu5 = [(-0.2387,-0.2309),
+                          (-0.1953,-0.1858),
+                          (-0.1769,-0.1685),
+                          (-0.2126,-0.2007),
+                          (-0.2004,-0.1892)]
+
+    plotter = GraphPlotter(items_porous_pcl1, datas, ranges_porous_pcl1, lengths_porous_pcl1, False, False)
     plotter.make_graph()
 
 if __name__ == "__main__":
